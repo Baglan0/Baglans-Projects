@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aryslanbek Baglan - Full Stack Developer Portfolio</title>
+    
+    <!-- CDNs -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles & Tailwind Config -->
+    <style>
+        :root {
+            --primary: #00d2ff;
+            --secondary: #3a7bd5;
+            --accent: #00ffaa;
+            --background: #0a0a0a;
+        }
+
+        body {
+            background-color: var(--background);
+            color: white;
+            font-family: 'Fira Code', monospace;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .glassmorphic {
+            background: rgba(10, 10, 10, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .neon-glow {
+            box-shadow: 0 0 5px var(--accent), 0 0 10px var(--accent), 0 0 20px var(--accent);
+        }
+        
+        .neon-border {
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+        }
+
+        .custom-cursor {
+            position: fixed;
+            left: 0;
+            top: 0;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        #cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            transition: transform 0.2s ease-out;
+        }
+
+        #cursor-ring {
+            width: 30px;
+            height: 30px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            position: absolute;
+            top: -11px;
+            left: -11px;
+            mix-blend-mode: screen;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--background);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        .hamburger-line {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .menu-open .line-1 {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .menu-open .line-2 {
+            opacity: 0;
+        }
+        .menu-open .line-3 {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- 3D Matrix Background -->
+    <div id="matrix-bg" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></div>
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor" id="cursor">
+        <div id="cursor-dot"></div>
+        <div id="cursor-ring"></div>
+    </div>
+    
+    <!-- Navigation Bar -->
+    <header id="navbar" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 glassmorphic">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#home" class="text-3xl font-bold gradient-text">Aryslanbek Baglan</a>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="#home" class="nav-link text-white hover:text-cyan-400 relative">Главная <span class="underline-anim"></span></a>
+                <a href="#about" class="nav-link text-white hover:text-cyan-400 relative">Обо мне <span class="underline-anim"></span></a>
+                <a href="#skills" class="nav-link text-white hover:text-cyan-400 relative">Навыки <span class="underline-anim"></span></a>
+                <a href="#projects" class="nav-link text-white hover:text-cyan-400 relative">Проекты <span class="underline-anim"></span></a>
+                <a href="#contact" class="nav-link text-white hover:text-cyan-400 relative">Контакты <span class="underline-anim"></span></a>
+            </div>
+            <button id="hamburger-btn" class="md:hidden z-50">
+                <div class="w-8 h-8 flex flex-col justify-around">
+                    <span class="hamburger-line line-1 block w-full h-0.5 bg-white"></span>
+                    <span class="hamburger-line line-2 block w-full h-0.5 bg-white"></span>
+                    <span class="hamburger-line line-3 block w-full h-0.5 bg-white"></span>
+                </div>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed top-0 left-0 w-full h-full glassmorphic z-40 transform -translate-x-full transition-transform duration-500 ease-in-out">
+        <div class="flex flex-col items-center justify-center h-full space-y-8">
+            <a href="#home" class="mobile-nav-link text-3xl text-white">Главная</a>
+            <a href="#about" class="mobile-nav-link text-3xl text-white">Обо мне</a>
+            <a href="#skills" class="mobile-nav-link text-3xl text-white">Навыки</a>
+            <a href="#projects" class="mobile-nav-link text-3xl text-white">Проекты</a>
+            <a href="#contact" class="mobile-nav-link text-3xl text-white">Контакты</a>
+        </div>
+    </div>
+
+
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="h-screen flex items-center justify-center relative overflow-hidden">
+            <div class="hero-content text-center glassmorphic p-8 md:p-12 rounded-lg border border-cyan-500/20 max-w-4xl mx-auto">
+                <div class="terminal-box text-left font-mono text-sm md:text-lg">
+                    <p class="type-text">> Hello_World()</p>
+                    <h1 class="text-4xl md:text-6xl font-bold my-4">Я <span class="gradient-text">Baglan</span>, Full Stack разработчик!</h1>
+                    <p class="type-text">const specialties = ["FrontEnd", "Backend", "Databases", "Mobile", "Web"]</p>
+                </div>
+                <div class="mt-8 flex justify-center gap-4">
+                    <a href="https://github.com/Baglan0/Baglans-Projects" class="btn gradient-btn px-6 py-3 rounded-md text-lg font-semibold bg-gradient-to-r from-cyan-500 to-blue-500 hover:opacity-90 transition-opacity">Смотреть Проекты</a>
+                    <a href="#contact" class="btn outline-btn px-6 py-3 rounded-md text-lg font-semibold border-2 border-accent text-accent hover:bg-accent hover:text-black transition-all">Контакты</a>
+                </div>
+            </div>
+            <div class="absolute bottom-10 left-1/2 -translate-x-1/2">
+                <div class="scroll-down-indicator w-6 h-10 border-2 border-white rounded-full flex justify-center items-start p-1">
+                    <div class="scroll-dot w-2 h-2 bg-white rounded-full"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-center mb-12 gradient-text section-title">Обо мне</h2>
+                <div class="grid md:grid-cols-2 gap-12 items-center about-content">
+                    <div class="profile-image-container relative w-64 h-64 mx-auto md:w-80 md:h-80">
+                        <img src="about_me_img.jpeg" alt="Profile" class="rounded-full w-full h-full object-cover z-10 relative">
+                        <div class="absolute inset-0 border-4 border-cyan-400 rounded-full animate-pulse"></div>
+                        <div class="absolute inset-[-10px] border-2 border-blue-500 rounded-full animate-pulse delay-500"></div>
+                    </div>
+                    <div class="about-text text-center md:text-left">
+                        <p class="text-lg mb-4">
+                            Я Full Stack разработчик, закончил учебу в высшем колледже "Astana Polytechnic". 
+                        </p>
+                        <p class="text-lg mb-6">
+                            За 3 года обучения познал навыки Web разработки, Mobile разработки, Разработки Базы Данных, 1С и др. 
+                        </p>
+                        <div class="flex justify-center md:justify-start space-x-6 text-2xl">
+                            <a href="#" class="social-icon hover:text-cyan-400 transition-colors"><i class="fab fa-github"></i></a>
+                            <a href="#" class="social-icon hover:text-cyan-400 transition-colors"><i class="fab fa-telegram"></i></a>
+                            <a href="#" class="social-icon hover:text-cyan-400 transition-colors"><i class="fab fa-whatsapp"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills" class="py-20 bg-black/20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-center mb-12 gradient-text section-title">Навыки</h2>
+                <div class="skills-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Skills will be injected here by JS -->
+                </div>
+            </div>
+        </section>
+        <!-- Projects Section -->
+        <section id="projects" class="py-20 bg-black/20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-center mb-12 gradient-text section-title">Проекты</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Project Cards -->
+                    <div class="project-card glassmorphic rounded-lg overflow-hidden">
+                        <div class="relative group">
+                           <img src="https://images.unsplash.com/photo-1666875753105-c63a6f3bdc86?q=80&w=1173&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Project 1" class="w-full h-48 object-cover">
+                           <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/50 to-blue-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2">Project One</h3>
+                            <p class="text-gray-400 mb-4">An interactive data visualization platform.</p>
+                            <div class="flex gap-2 mb-4">
+                                <span class="tag">React</span><span class="tag">D3.js</span><span class="tag">Node.js</span>
+                            </div>
+                            <div class="flex gap-4">
+                               <a href="#" class="btn-link">Live Demo <i class="fas fa-external-link-alt"></i></a>
+                               <a href="#" class="btn-link">Code <i class="fab fa-github"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card glassmorphic rounded-lg overflow-hidden">
+                        <div class="relative group">
+                           <img src="https://plus.unsplash.com/premium_photo-1675793715030-0584c8ec4a13?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Project 2" class="w-full h-48 object-cover">
+                           <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/50 to-blue-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2">Project Two</h3>
+                            <p class="text-gray-400 mb-4">A real-time collaborative code editor.</p>
+                            <div class="flex gap-2 mb-4">
+                                <span class="tag">Vue.js</span><span class="tag">WebSockets</span><span class="tag">Firebase</span>
+                            </div>
+                             <div class="flex gap-4">
+                               <a href="#" class="btn-link">Live Demo <i class="fas fa-external-link-alt"></i></a>
+                               <a href="#" class="btn-link">Code <i class="fab fa-github"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card glassmorphic rounded-lg overflow-hidden">
+                        <div class="relative group">
+                           <img src="https://plus.unsplash.com/premium_photo-1714618804334-8194aaf73790?q=80&w=1121&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Project 3" class="w-full h-48 object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/50 to-blue-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2">Project Three</h3>
+                            <p class="text-gray-400 mb-4">A 3D product configurator with Three.js.</p>
+                            <div class="flex gap-2 mb-4">
+                                <span class="tag">Three.js</span><span class="tag">React</span><span class="tag">Express</span>
+                            </div>
+                             <div class="flex gap-4">
+                               <a href="#" class="btn-link">Live Demo <i class="fas fa-external-link-alt"></i></a>
+                               <a href="#" class="btn-link">Code <i class="fab fa-github"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="py-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-center mb-12 gradient-text section-title">Контакты</h2>
+                <div class="grid md:grid-cols-2 gap-12 contact-content">
+                    <div>
+                        <h3 class="text-3xl font-bold mb-4">Контактная Информация</h3>
+                        <div class="space-y-4">
+                            <p><i class="fas fa-envelope mr-3 text-cyan-400"></i> baglanaryslanbek6@gmail.com</p>
+                            <p><i class="fas fa-map-marker-alt mr-3 text-cyan-400"></i> Kazakhstan, Astana, 87074688232</p>
+                        </div>
+                    </div>
+                    <form class="space-y-6">
+                        <input type="text" placeholder="Имя" class="contact-input w-full bg-black/20 p-4 rounded-md border border-gray-700 focus:border-cyan-400 focus:ring-cyan-400 focus:outline-none transition-all">
+                        <input type="email" placeholder="Email" class="contact-input w-full bg-black/20 p-4 rounded-md border border-gray-700 focus:border-cyan-400 focus:ring-cyan-400 focus:outline-none transition-all">
+                        <textarea placeholder="Сообщение" rows="5" class="contact-input w-full bg-black/20 p-4 rounded-md border border-gray-700 focus:border-cyan-400 focus:ring-cyan-400 focus:outline-none transition-all"></textarea>
+                        <button type="submit" class="magnetic-btn w-full px-6 py-3 rounded-md text-lg font-semibold bg-gradient-to-r from-cyan-500 to-blue-500 hover:opacity-90 transition-opacity">Отправить сообщение</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-8 bg-black/30 border-t border-gray-800">
+        <div class="container mx-auto px-6 text-center text-gray-400">
+            <a href="#home" class="text-2xl font-bold gradient-text mb-4 inline-block">Aryslanbek Baglan</a>
+             <div class="flex justify-center space-x-6 text-xl mb-4">
+                <a href="#" class="social-icon hover:text-cyan-400 transition-colors"><i class="fab fa-github"></i></a>
+                <a href="#" class="social-icon hover:text-cyan-400 transition-colors"><i class="fab fa-telegram"></i></a>
+                <a href="#" class="social-icon hover:text-cyan-400 transition-colors"><i class="fab fa-whatsapp"></i></a>
+            </div>
+            <p>© 2025 Aryslanbek Baglan</p>
+        </div>
+    </footer>
+
+
+    <!-- JavaScript -->
+    <script type="module">
+        import * as THREE from 'three';
+
+        // --- Three.js 3D Matrix Background ---
+        let scene, camera, renderer, particles;
+        const container = document.getElementById('matrix-bg');
+
+        function initMatrix() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 300;
+
+            renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            const particleCount = 5000;
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+            const color = new THREE.Color();
+            
+            for (let i = 0; i < particleCount; i++) {
+                const i3 = i * 3;
+                positions[i3] = (Math.random() - 0.5) * 1000;
+                positions[i3 + 1] = (Math.random() - 0.5) * 1000;
+                positions[i3 + 2] = (Math.random() - 0.5) * 1000;
+                
+                color.setHSL(0.5 + Math.random() * 0.2, 0.7, 0.5);
+                colors[i3] = color.r;
+                colors[i3 + 1] = color.g;
+                colors[i3 + 2] = color.b;
+            }
+            
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 1.5,
+                vertexColors: true,
+                blending: THREE.AdditiveBlending,
+                transparent: true,
+                opacity: 0.7,
+            });
+            
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            window.addEventListener('resize', onWindowResize);
+            document.addEventListener('mousemove', onMouseMove);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        let mouseX = 0, mouseY = 0;
+        function onMouseMove(event) {
+            mouseX = (event.clientX - window.innerWidth / 2) / 100;
+            mouseY = (event.clientY - window.innerHeight / 2) / 100;
+        }
+
+        function animateMatrix() {
+            requestAnimationFrame(animateMatrix);
+            
+            const time = Date.now() * 0.0001;
+            particles.rotation.y = time * 0.2;
+            
+            camera.position.x += (mouseX - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+            
+            renderer.render(scene, camera);
+        }
+        
+        initMatrix();
+        animateMatrix();
+
+
+        // --- GSAP Animations ---
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Custom Cursor
+        const cursor = document.getElementById('cursor');
+        const cursorDot = document.getElementById('cursor-dot');
+        const cursorRing = document.getElementById('cursor-ring');
+        
+        gsap.set(cursor, {xPercent: -50, yPercent: -50});
+        gsap.set(cursorRing, {xPercent: -50, yPercent: -50});
+        
+        window.addEventListener('mousemove', e => {
+            gsap.to(cursorDot, 0.2, {x: e.clientX, y: e.clientY});
+            gsap.to(cursorRing, 0.8, {x: e.clientX, y: e.clientY, ease: "power2.out"});
+        });
+
+
+        // Hero Section Animation
+        gsap.from(".hero-content", { duration: 1.5, y: 50, opacity: 0, ease: "power3.out", delay: 0.5 });
+        gsap.from(".type-text", { duration: 1, text: "", ease: "none", stagger: 1, delay: 1 });
+        gsap.from(".scroll-down-indicator", { y: -20, repeat: -1, yoyo: true, duration: 1, ease: "power1.inOut" });
+
+        // Section Title Animations
+        gsap.utils.toArray('.section-title').forEach(title => {
+            gsap.from(title, {
+                opacity: 0,
+                y: 50,
+                duration: 1,
+                scrollTrigger: {
+                    trigger: title,
+                    start: 'top 80%',
+                }
+            });
+        });
+
+        // About Section
+        gsap.from(".about-content", {
+            opacity: 0,
+            y: 100,
+            duration: 1,
+            scrollTrigger: {
+                trigger: "#about",
+                start: "top 70%"
+            }
+        });
+        
+        // Skills
+        const skillsData = [
+    { icon: 'fab fa-js', name: 'JavaScript', level: 85 },
+    { icon: 'fab fa-react', name: 'React', level: 80 },
+    { icon: 'fab fa-vuejs', name: 'Vue.js', level: 80 },                    // Vue вместо Node.js
+    { icon: 'fas fa-database', name: 'Databases', level: 90 },
+    { icon: 'fab fa-php', name: 'PHP', level: 80 },
+    { icon: 'fas fa-code', name: 'C#', level: 85 },
+    { icon: 'fab fa-html5', name: 'HTML5', level: 95 },
+    { icon: 'fab fa-css3-alt', name: 'CSS3', level: 95 },
+    { icon: 'fas fa-mobile-alt', name: 'Flutter (Dart)', level: 75 },      // Flutter
+    { icon: 'fab fa-java', name: 'Java', level: 80 },                       // Java
+    { icon: 'fas fa-database', name: 'SQL', level: 85 },                   // SQL
+    { icon: 'fas fa-cube', name: '1C', level: 70 },                         // 1C
+    { icon: 'fas fa-code-branch', name: 'Laravel', level: 80 },            // Laravel
+    { icon: 'fab fa-trello', name: 'Trello', level: 70 },                  // Trello
+    { icon: 'fas fa-gamepad', name: 'Unity', level: 80 },                  // Unity (нет иконки, используем gamepad)
+    { icon: 'fas fa-tablet-alt', name: '.NET MAUI', level: 75 },           // MAUI (приближённо)
+];
+
+
+        
+        const skillsGrid = document.querySelector('.skills-grid');
+        skillsData.forEach(skill => {
+            const skillEl = document.createElement('div');
+            skillEl.className = 'skill-card glassmorphic p-6 rounded-lg text-center';
+            skillEl.innerHTML = `
+                <i class="${skill.icon} text-5xl text-cyan-400 mb-4"></i>
+                <h3 class="text-xl font-bold mb-2">${skill.name}</h3>
+                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                    <div class="bg-gradient-to-r from-cyan-400 to-blue-500 h-2.5 rounded-full progress-bar" style="width: 0%"></div>
+                </div>
+            `;
+            skillsGrid.appendChild(skillEl);
+        });
+
+        gsap.utils.toArray('.skill-card').forEach((card, i) => {
+            gsap.from(card, {
+                opacity: 0,
+                scale: 0.5,
+                duration: 0.5,
+                stagger: 0.1,
+                scrollTrigger: {
+                    trigger: ".skills-grid",
+                    start: "top 80%",
+                }
+            });
+        });
+        
+        gsap.utils.toArray('.progress-bar').forEach(bar => {
+            gsap.to(bar, {
+                width: "100%",
+                duration: 2,
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: bar,
+                    start: "top 90%"
+                }
+            });
+        });
+
+
+        // Experience Timeline
+        gsap.utils.toArray('.experience-item').forEach((item, index) => {
+             gsap.from(item, {
+                opacity: 0,
+                x: index % 2 === 0 ? -100 : 100,
+                duration: 1,
+                scrollTrigger: {
+                    trigger: item,
+                    start: "top 80%",
+                }
+            });
+        });
+
+        // Projects
+        gsap.from(".project-card", {
+            opacity: 0,
+            y: 100,
+            scale: 0.8,
+            duration: 0.8,
+            stagger: 0.2,
+            ease: "back.out(1.7)",
+            scrollTrigger: {
+                trigger: "#projects",
+                start: "top 70%"
+            }
+        });
+
+        // Contact Form
+        gsap.from(".contact-content", {
+            opacity: 0,
+            y: 100,
+            duration: 1,
+            scrollTrigger: {
+                trigger: "#contact",
+                start: "top 70%"
+            }
+        });
+        
+        // Magnetic Button
+        const magneticBtn = document.querySelector('.magnetic-btn');
+        if (magneticBtn) {
+            magneticBtn.addEventListener('mousemove', function(e) {
+                const pos = this.getBoundingClientRect();
+                const x = e.clientX - pos.left - pos.width / 2;
+                const y = e.clientY - pos.top - pos.height / 2;
+
+                gsap.to(this, {
+                    x: x * 0.3,
+                    y: y * 0.6,
+                    duration: 0.7,
+                    ease: "power3.out"
+                });
+            });
+
+            magneticBtn.addEventListener('mouseleave', function(e) {
+                gsap.to(this, {
+                    x: 0,
+                    y: 0,
+                    duration: 0.7,
+                    ease: "elastic.out(1, 0.3)"
+                });
+            });
+        }
+        
+        // Mobile Menu
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+        const menuTimeline = gsap.timeline({ paused: true });
+        menuTimeline.to(mobileMenu, {
+            x: 0,
+            duration: 0.5,
+            ease: "power3.inOut"
+        });
+
+        hamburgerBtn.addEventListener('click', () => {
+            hamburgerBtn.classList.toggle('menu-open');
+            if (hamburgerBtn.classList.contains('menu-open')) {
+                menuTimeline.play();
+            } else {
+                menuTimeline.reverse();
+            }
+        });
+
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                hamburgerBtn.classList.remove('menu-open');
+                menuTimeline.reverse();
+            });
+        });
+        
+        // Additional styles for project cards
+        const styleSheet = document.createElement("style");
+        styleSheet.type = "text/css";
+        styleSheet.innerText = `
+            .tag { background-color: rgba(0, 210, 255, 0.1); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
+            .btn-link { color: var(--accent); font-weight: 500; transition: all 0.2s; }
+            .btn-link:hover { text-shadow: 0 0 5px var(--accent); }
+            .nav-link .underline-anim { position: absolute; bottom: -5px; left: 0; width: 100%; height: 2px; background-color: var(--accent); transform: scaleX(0); transition: transform 0.3s ease-in-out; transform-origin: right; }
+            .nav-link:hover .underline-anim { transform: scaleX(1); transform-origin: left; }
+        `;
+        document.head.appendChild(styleSheet);
+        
+    </script>
+</body>
+</html>
